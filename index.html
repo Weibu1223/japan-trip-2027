@@ -51,9 +51,27 @@
 }
 @media(min-width:851px){.mapLegend{top:128px}}
 @media print{#mapArea{position:relative;height:300px}#map{display:none}.shell{position:relative}.sidebar{position:relative;width:100%;max-width:none;height:auto;overflow:visible}.topRight,.bottomRight,.tabs,.dayNav,.mapLegend{display:none}.section{break-inside:avoid}}
+.travelCard { margin: 14px 22px 0; padding: 15px; background: #123344; border-color: #4c7a8c; }
+.travelCard h2 { font-size: 18px; margin: 6px 0; line-height: 1.4; }
+.travelCard p { font-size: 13px; }
+.travelTime { color: #ffdcab; }
+.travelCard .miniBtn, .snowPlan .miniBtn, .copyPlace { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+.offlineStatus { color: #b8dbe3; margin: 8px 0 0; font-size: 11px; }
+.snowPlan { margin-top: 12px; }
+.snowPlan ul { margin: 8px 0 12px; padding-left: 20px; }
+.placeName { color: #b0dbe6; font-size: 12px; margin: 3px 0; overflow-wrap: anywhere; }
+.copyField { width: 100%; min-height: 36px; margin-top: 6px; }
+#mapArea:not(.live) #map { visibility: hidden; }
+@media (max-width: 850px) {
+  .travelCard { margin: 0; padding: 14px 16px; border-radius: 0; border-width: 0 0 1px; }
+}
 </style>
 </head>
 <body>
+<section class="travelCard card" id="travelCard" aria-label="下一段交通">
+  <div id="travelContent" aria-live="polite"></div>
+  <div class="offlineStatus" id="offlineStatus" role="status"></div>
+</section>
 <div id="mapArea" aria-label="可互動日本行程地圖">
 <svg id="fallback" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="sea" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#8cbed1"/><stop offset="1" stop-color="#3d708a"/></linearGradient><linearGradient id="land" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7eee5"/><stop offset="1" stop-color="#becdc2"/></linearGradient></defs><rect width="1000" height="900" fill="url(#sea)"/><path d="M100 740 Q170 730 215 690 L260 610 365 580 410 530 500 520 548 465 580 405 605 325 660 280 730 260 780 214 830 145 870 75 905 -60 1010 -20 1010 650 945 645 910 670 870 640 833 595 780 610 730 580 690 600 630 650 590 648 533 690 490 678 438 725 380 730 340 780 260 765 215 790 150 770Z" fill="url(#land)" stroke="#fafaf4" stroke-width="7"/><path d="M200 740 Q350 660 475 650 T730 510 905 80" stroke="#aabfb2" fill="none" stroke-width="4" opacity=".4"/><g id="svgRoutes"></g><g id="svgStops"></g><text x="755" y="815" fill="#edf9f8" opacity=".8" font-size="19" font-weight="bold">日本 · 中部／關西</text></svg>
 <div id="map"></div>
@@ -78,49 +96,49 @@
 const DATA={
   meta:{title:'2027 關西進・名古屋出 8天7夜',travelers:3,arrival:'2027-02-04 17:50 KIX',departure:'2027-02-11 09:50 NGO'},
   spots:{
-   kix:{name:'關西國際機場 KIX',lat:34.434,lon:135.231,icon:'✈️',type:'airport'},
-   tengachaya:{name:'天下茶屋站',lat:34.6373,lon:135.4969,icon:'🚉'},
-   osakah:{name:'City Plaza Osaka',lat:34.68425,lon:135.51062,mapsName:'City Plaza Osaka',icon:'🏨',type:'hotel'},
-   castleO:{name:'大阪城天守閣',lat:34.6873,lon:135.5262,icon:'🏯'},
-   tenma:{name:'天神橋筋商店街',lat:34.703,lon:135.5126,icon:'🍜'},
-   umeda:{name:'梅田空中庭園',lat:34.7052,lon:135.4895,icon:'🌆'},
-   dotonbori:{name:'道頓堀',lat:34.6687,lon:135.5013,icon:'🍢'},
-   inari:{name:'伏見稻荷大社',lat:34.9671,lon:135.7727,icon:'⛩'},
-   kiyomizu:{name:'清水寺',lat:34.9948,lon:135.7850,icon:'🏯'},
-   ninen:{name:'二年坂／三年坂',lat:34.9977,lon:135.7822,icon:'🍵'},
-   gion:{name:'祇園、八坂神社',lat:35.0035,lon:135.7788,icon:'🌸'},
-   osakast:{name:'JR 大阪站',lat:34.7025,lon:135.4959,icon:'🚆'},
-   takayama:{name:'JR 高山站',lat:36.1408,lon:137.2511,icon:'🚆'},
-   takah:{name:'まち宿 壱龍',lat:36.1424,lon:137.2561,icon:'♨️',type:'hotel'},
-   oldtown:{name:'高山三町古街',lat:36.1407,lon:137.2607,icon:'🏘'},
-   iroha:{name:'168邸（晚餐）',lat:36.1425,lon:137.256,icon:'🍱'},
-   noh:{name:'高山濃飛巴士中心',lat:36.141765,lon:137.251575,mapsName:'高山濃飛バスセンター',icon:'🚌'},
-   shbus:{name:'白川鄉巴士總站',lat:36.261996,lon:136.9068816,mapsName:'白川郷バスターミナル',icon:'🚌'},
-   shirakawa:{name:'白川鄉荻町合掌聚落',lat:36.2577,lon:136.9072,icon:'❄️'},
-   obsv:{name:'城山展望台',lat:36.2609,lon:136.9003,icon:'📷'},
-   minka:{name:'合掌造民家園',lat:36.2543,lon:136.9058,icon:'🏠'},
-   morning:{name:'宮川朝市',lat:36.1443,lon:137.2595,icon:'🍡'},
-   jinya:{name:'高山陣屋',lat:36.1373,lon:137.2584,icon:'🏯'},
-   nagoyast:{name:'JR 名古屋站',lat:35.1709,lon:136.8815,icon:'🚆'},
-   nagoyah:{name:'三井花園飯店名古屋 Premier',lat:35.1698,lon:136.8855,icon:'🏨',type:'hotel'},
-   osu:{name:'大須商店街',lat:35.1586,lon:136.903,icon:'🛍'},
-   sakae:{name:'榮商圈',lat:35.1701,lon:136.9078,icon:'🌃'},
-   inuyamast:{name:'名鐵犬山站',lat:35.3792,lon:136.9455,icon:'🚉'},
-   inuyama:{name:'犬山城',lat:35.3881,lon:136.9398,icon:'🏯'},
-   nagoyac:{name:'名古屋城／本丸御殿',lat:35.1852,lon:136.8996,icon:'🏯'},
-   meitetsu:{name:'名鐵名古屋站',lat:35.1689,lon:136.884,icon:'🚉'},
-   ngo:{name:'中部國際機場 NGO',lat:34.8584,lon:136.8053,icon:'✈️',type:'airport'}
+   kix:{ja:'関西国際空港',name:'關西國際機場 KIX',lat:34.434,lon:135.231,icon:'✈️',type:'airport'},
+   tengachaya:{ja:'天下茶屋駅',name:'天下茶屋站',lat:34.6373,lon:135.4969,icon:'🚉'},
+   osakah:{ja:'シティプラザ大阪',name:'City Plaza Osaka',lat:34.68425,lon:135.51062,mapsName:'City Plaza Osaka',icon:'🏨',type:'hotel'},
+   castleO:{ja:'大阪城天守閣',name:'大阪城天守閣',lat:34.6873,lon:135.5262,icon:'🏯'},
+   tenma:{ja:'天神橋筋商店街',name:'天神橋筋商店街',lat:34.703,lon:135.5126,icon:'🍜'},
+   umeda:{ja:'梅田スカイビル 空中庭園展望台',name:'梅田空中庭園',lat:34.7052,lon:135.4895,icon:'🌆'},
+   dotonbori:{ja:'道頓堀',name:'道頓堀',lat:34.6687,lon:135.5013,icon:'🍢'},
+   inari:{ja:'伏見稲荷大社',name:'伏見稻荷大社',lat:34.9671,lon:135.7727,icon:'⛩'},
+   kiyomizu:{ja:'清水寺',name:'清水寺',lat:34.9948,lon:135.7850,icon:'🏯'},
+   ninen:{ja:'二年坂・三年坂',name:'二年坂／三年坂',lat:34.9977,lon:135.7822,icon:'🍵'},
+   gion:{ja:'祇園・八坂神社',name:'祇園、八坂神社',lat:35.0035,lon:135.7788,icon:'🌸'},
+   osakast:{ja:'JR大阪駅',name:'JR 大阪站',lat:34.7025,lon:135.4959,icon:'🚆'},
+   takayama:{ja:'JR高山駅',name:'JR 高山站',lat:36.1408,lon:137.2511,icon:'🚆'},
+   takah:{ja:'まち宿 壱龍',name:'まち宿 壱龍',lat:36.1424,lon:137.2561,icon:'♨️',type:'hotel'},
+   oldtown:{ja:'高山 三町伝統的建造物群保存地区',name:'高山三町古街',lat:36.1407,lon:137.2607,icon:'🏘'},
+   iroha:{ja:'168邸',name:'168邸（晚餐）',lat:36.1425,lon:137.256,icon:'🍱'},
+   noh:{ja:'高山濃飛バスセンター',name:'高山濃飛巴士中心',lat:36.141765,lon:137.251575,mapsName:'高山濃飛バスセンター',icon:'🚌'},
+   shbus:{ja:'白川郷バスターミナル',name:'白川鄉巴士總站',lat:36.261996,lon:136.9068816,mapsName:'白川郷バスターミナル',icon:'🚌'},
+   shirakawa:{ja:'白川郷 荻町合掌造り集落',name:'白川鄉荻町合掌聚落',lat:36.2577,lon:136.9072,icon:'❄️'},
+   obsv:{ja:'荻町城跡展望台',name:'城山展望台',lat:36.2609,lon:136.9003,icon:'📷'},
+   minka:{ja:'白川郷 合掌造り民家園',name:'合掌造民家園',lat:36.2543,lon:136.9058,icon:'🏠'},
+   morning:{ja:'宮川朝市',name:'宮川朝市',lat:36.1443,lon:137.2595,icon:'🍡'},
+   jinya:{ja:'高山陣屋',name:'高山陣屋',lat:36.1373,lon:137.2584,icon:'🏯'},
+   nagoyast:{ja:'JR名古屋駅',name:'JR 名古屋站',lat:35.1709,lon:136.8815,icon:'🚆'},
+   nagoyah:{ja:'三井ガーデンホテル名古屋プレミア',name:'三井花園飯店名古屋 Premier',lat:35.1698,lon:136.8855,icon:'🏨',type:'hotel'},
+   osu:{ja:'大須商店街',name:'大須商店街',lat:35.1586,lon:136.903,icon:'🛍'},
+   sakae:{ja:'栄',name:'榮商圈',lat:35.1701,lon:136.9078,icon:'🌃'},
+   inuyamast:{ja:'名鉄犬山駅',name:'名鐵犬山站',lat:35.3792,lon:136.9455,icon:'🚉'},
+   inuyama:{ja:'犬山城',name:'犬山城',lat:35.3881,lon:136.9398,icon:'🏯'},
+   nagoyac:{ja:'名古屋城・本丸御殿',name:'名古屋城／本丸御殿',lat:35.1852,lon:136.8996,icon:'🏯'},
+   meitetsu:{ja:'名鉄名古屋駅',name:'名鐵名古屋站',lat:35.1689,lon:136.884,icon:'🚉'},
+   ngo:{ja:'中部国際空港',name:'中部國際機場 NGO',lat:34.8584,lon:136.8053,icon:'✈️',type:'airport'}
   },
   days:[
    {date:'2/4',weekday:'四',title:'關西落地・入住大阪',caption:'17:50 抵達 KIX｜第一天只排飯店及晚餐',color:'#66d3e2',key:'osaka',tips:['抵達後先處理入境、託運行李；交通預計 19:00 前後出發，非保證時刻。','在天下茶屋轉大阪 Metro 堺筋線至堺筋本町，步行約 6 分鐘抵達 City Plaza Osaka。'],stops:[
     {id:'kix',time:'17:50',note:'班機抵達；入境、領行李、領取／啟用網路。'},
-    {id:'tengachaya',time:'19:00+',note:'南海電鐵「空港急行」往難波方向，於天下茶屋下車。',mode:'train',duration:'約 35–45 分',fee:'南海票價依購票時為準',route:'南海空港急行／如搭 Rapi:t 另購特急券'},
+    {id:'tengachaya',time:'19:00+',depart:'19:00+',timetable:true,boarding:'関西空港駅（南海電鉄）',note:'南海電鐵「空港急行」往難波方向，於天下茶屋下車。',mode:'train',duration:'約 35–45 分',fee:'南海票價依購票時為準',route:'南海空港急行／如搭 Rapi:t 另購特急券'},
     {id:'osakah',time:'20:00+',note:'到飯店辦理入住；不排任何必須準時到場的門票。',mode:'metro',duration:'約 20 分＋步行約 6 分',fee:'地鐵另計',route:'天下茶屋 → 堺筋本町（大阪 Metro 堺筋線）→ 步行到飯店'},
     {id:'dotonbori',time:'21:00',note:'可選夜遊道頓堀；若累了直接在飯店附近晚餐。',mode:'metro',duration:'約 15–25 分',fee:'免費散步',route:'堺筋本町 → 日本橋（堺筋線）＋步行到道頓堀',optional:true}
    ]},
    {date:'2/5',weekday:'五',title:'大阪城・商店街・梅田夜景',caption:'大阪經典景點｜晚上保留吃飯與逛街時間',color:'#91b8f1',key:'osaka',tips:['大阪城周邊範圍大，從最近的地鐵站到天守閣仍需步行約 15–20 分鐘。','梅田空中庭園建議預留日落前約 30–60 分入場，冬天日落較早。','若不想一天跑太多，可捨棄天神橋筋商店街，把時間留給大阪城與梅田。'],stops:[
     {id:'osakah',time:'08:30',note:'飯店早餐後出發。'},
-    {id:'castleO',time:'09:10',note:'天守閣門票 ¥1,200；參觀約 1.5 小時。',mode:'walk',duration:'步行約 20–25 分',fee:'門票 ¥1,200',route:'City Plaza Osaka → 大阪城（請依導航選擇入口）'},
+    {id:'castleO',time:'09:10',depart:'08:30',note:'天守閣門票 ¥1,200；參觀約 1.5 小時。',mode:'walk',duration:'步行約 20–25 分',fee:'門票 ¥1,200',route:'City Plaza Osaka → 大阪城（請依導航選擇入口）'},
     {id:'tenma',time:'12:00',note:'天神橋筋商店街午餐；大阪燒、丼飯、烏龍麵等。',mode:'train',duration:'約 25–35 分',route:'大阪城公園步行至森之宮；JR 大阪環狀線 → 天滿站'},
     {id:'umeda',time:'16:30',note:'梅田商圈／空中庭園展望台 ¥2,000；看傍晚與夜景。',mode:'train',duration:'JR 天滿→大阪站約 3 分＋步行約 12–15 分',fee:'門票 ¥2,000',route:'JR 大阪環狀線至大阪站；步行至 Umeda Sky Building'},
     {id:'dotonbori',time:'19:00',note:'道頓堀、心齋橋晚餐與購物。',mode:'metro',duration:'約 20–25 分',route:'梅田→難波（大阪 Metro 御堂筋線）＋步行'},
@@ -128,7 +146,7 @@ const DATA={
    ]},
    {date:'2/6',weekday:'六',title:'京都東山・伏見稻荷一日遊',caption:'優先京阪沿線走法｜避免在京都頻繁跨區',color:'#b5a3ed',key:'osaka',tips:['京都東山坡道與石板路多，帶父母走清水寺到祇園建議穿防滑鞋。','京阪電車「伏見稻荷」與 JR「稻荷」是不同車站；此行在北濱轉乘京阪電車。','週六清水寺、二年坂人潮多，伏見稻荷放早上比較舒服。'],stops:[
     {id:'osakah',time:'07:30',note:'早餐後步行到堺筋本町站，搭地鐵至北濱轉乘京阪。'},
-    {id:'inari',time:'09:00',note:'千本鳥居走到中段即可，不必爬完全程；免費。',mode:'train',duration:'約 65–80 分（含換車）',fee:'免費',route:'堺筋本町 → 北濱（堺筋線）→ 京阪伏見稻荷站（視班次轉普通車）＋步行約 5 分'},
+    {id:'inari',time:'09:00',depart:'07:30',boarding:'堺筋本町駅 → 北浜駅（京阪電車）',note:'千本鳥居走到中段即可，不必爬完全程；免費。',mode:'train',duration:'約 65–80 分（含換車）',fee:'免費',route:'堺筋本町 → 北濱（堺筋線）→ 京阪伏見稻荷站（視班次轉普通車）＋步行約 5 分'},
     {id:'kiyomizu',time:'11:30',note:'清水寺成人 ¥500；停留 60–90 分。',mode:'train',duration:'電車約 10–15 分＋上坡步行約 20–25 分',fee:'門票 ¥500',route:'京阪 伏見稻荷→清水五條；步行上清水寺'},
     {id:'ninen',time:'13:30',note:'二年坂、三年坂、八坂塔；傳統街景與甜點。',mode:'walk',duration:'步行約 5–15 分',fee:'免費散步',route:'從清水寺沿產寧坂下行'},
     {id:'gion',time:'16:00',note:'八坂神社、祇園花見小路；晚餐可在祇園或大阪。',mode:'walk',duration:'步行約 15–25 分',fee:'免費散步',route:'二年坂→八坂神社→祇園'},
@@ -136,8 +154,8 @@ const DATA={
    ]},
    {date:'2/7',weekday:'日',title:'大阪直達高山・旅館會席料理',caption:'今天移動最長，但高山連住兩晚不用再搬家',color:'#82d8b4',key:'takayama',tips:['2/7 為星期日，依 2026 年班表大阪 08:02 → 高山 12:14 的「ひだ25號」可直達；實際 2027 車次需開賣後確認。','從大阪飯店要留至少 45–50 分鐘前往 JR 大阪站與找月台。','高山壱龍兩晚已含晚餐，切勿把飛驒之里夜間點燈排成必去，以免和 168邸用餐衝突。','壱龍位於高山市花川町2-3，官方寫高山站步行約 7 分鐘。'],stops:[
     {id:'osakah',time:'06:45',note:'City Plaza Osaka 退房、帶行李出發，預留轉乘與找月台時間。'},
-    {id:'osakast',time:'07:35',note:'建議 07:35 前進站，尋找特急ひだ25號月台。',mode:'metro',duration:'約 30–45 分（含步行）',route:'堺筋本町 → 本町（中央線）→ 梅田（御堂筋線）→ 步行至 JR 大阪站'},
-    {id:'takayama',time:'12:14',note:'特急ひだ25號：大阪 08:02 發；高山 12:14 抵達。',mode:'train',duration:'約 4 小時 12 分',fee:'指定席參考約 ¥8,450',route:'JR 大阪站→JR 高山站，特急ひだ25號（免轉車）'},
+    {id:'osakast',time:'07:35',depart:'06:45',boarding:'堺筋本町駅（Osaka Metro）',note:'建議 07:35 前進站，尋找特急ひだ25號月台。',mode:'metro',duration:'約 30–45 分（含步行）',route:'堺筋本町 → 本町（中央線）→ 梅田（御堂筋線）→ 步行至 JR 大阪站'},
+    {id:'takayama',time:'12:14',depart:'08:02',timetable:true,note:'特急ひだ25號：大阪 08:02 發；高山 12:14 抵達。',mode:'train',duration:'約 4 小時 12 分',fee:'指定席參考約 ¥8,450',route:'JR 大阪站→JR 高山站，特急ひだ25號（免轉車）'},
     {id:'takah',time:'12:35',note:'前往「まち宿 壱龍」寄放行李；15:00 後可入住。',mode:'walk',duration:'步行約 7 分',route:'高山站東口→花川町2-3'},
     {id:'oldtown',time:'13:00',note:'飛驒牛午餐、三町老街、宮川附近散步；適合慢慢走。',mode:'walk',duration:'步行約 3–8 分',fee:'免費散步',route:'壱龍→三町老街'},
     {id:'iroha',time:'18:00*',note:'168邸獨立包廂享用已含的飛驒牛會席晚餐；實際用餐時間以訂單或旅館安排為準。',mode:'walk',duration:'旅館正對面／約 1 分',fee:'已含兩晚會席方案',route:'返回壱龍→對面 168邸'},
@@ -145,28 +163,28 @@ const DATA={
    ]},
    {date:'2/8',weekday:'一',title:'白川鄉合掌村・完整雪景日',caption:'今天不搬飯店｜高山 ↔ 白川鄉來回',color:'#9de3d1',key:'shirakawa',tips:['高山↔白川鄉巴士自 2026/12/1 起單程 ¥2,900；往返 ¥5,800。部分班次需提前訂座。','已公告冬季調整巴士班表：09:35／15:45 只是規劃參考，應依 2027/2/8 實際售票班次為準。','濃飛巴士公告：豪雪、高速公路封閉或停車場壅塞時，可能延誤超過兩小時。','若雪太大，展望台接駁可能停駛；村落散步仍為主要活動。','晚上已包含壱龍 168邸第二晚晚餐，回程車次不要安排太晚。'],stops:[
     {id:'takah',time:'08:15',note:'168邸早餐（依旅館實際時間）、輕裝出發，不用帶大行李。'},
-    {id:'noh',time:'09:10',note:'提早 20–25 分到高山濃飛巴士中心確認搭車月台。',mode:'walk',duration:'步行約 7–10 分',route:'壱龍→高山濃飛巴士中心'},
-    {id:'shbus',time:'10:25*',note:'搭預約制巴士。規劃班次 09:35 → 10:25，仍須核對改點後的實際班表。',mode:'bus',duration:'約 50 分',fee:'¥2,900／人（單程）',route:'高山濃飛巴士中心→白川鄉（荻町）'},
+    {id:'noh',time:'09:10',depart:'08:55',note:'提早 20–25 分到高山濃飛巴士中心確認搭車月台。',mode:'walk',duration:'步行約 7–10 分',route:'壱龍→高山濃飛巴士中心'},
+    {id:'shbus',time:'10:25*',depart:'09:35',timetable:true,note:'搭預約制巴士。規劃班次 09:35 → 10:25，仍須核對改點後的實際班表。',mode:'bus',duration:'約 50 分',fee:'¥2,900／人（單程）',route:'高山濃飛巴士中心→白川鄉（荻町）'},
     {id:'shirakawa',time:'10:35',note:'漫步荻町合掌造聚落與田間雪景；入村免費。',mode:'walk',duration:'步行約 5–10 分',fee:'免費',route:'白川鄉巴士總站→荻町主要聚落'},
     {id:'obsv',time:'11:30',note:'城山展望台俯瞰村落；如接駁停止，取消此點。',mode:'bus',duration:'上山接駁約 10 分（依當日運行）',fee:'接駁另計',route:'荻町聚落→城山展望台',optional:true},
     {id:'minka',time:'13:30',note:'合掌造民家園成人 ¥800，冬季通常至 16:00；另外找時間吃午餐。',mode:'walk',duration:'從聚落步行約 10–15 分',fee:'門票 ¥800',route:'聚落／展望台下山→合掌造民家園'},
     {id:'shbus',time:'15:20',note:'返回巴士站，至少留 20–25 分鐘排隊與確認月台。',mode:'walk',duration:'步行約 8–12 分',route:'民家園→白川鄉巴士總站'},
-    {id:'noh',time:'16:35*',note:'規劃班次 15:45 → 16:35；仍須以正式售票班次為準。',mode:'bus',duration:'約 50 分',fee:'¥2,900／人（單程）',route:'白川鄉→高山濃飛巴士中心'},
+    {id:'noh',time:'16:35*',depart:'15:45',timetable:true,note:'規劃班次 15:45 → 16:35；仍須以正式售票班次為準。',mode:'bus',duration:'約 50 分',fee:'¥2,900／人（單程）',route:'白川鄉→高山濃飛巴士中心'},
     {id:'iroha',time:'18:00*',note:'第二晚飛驒牛會席；入住已付款的晚餐方案，請遵守旅館指定用餐時間。',mode:'walk',duration:'巴士中心→旅館約 7–10 分',fee:'已含',route:'步行回壱龍、前往旅館對面的 168邸'}
    ]},
    {date:'2/9',weekday:'二',title:'高山早市・特急前往名古屋',caption:'上午慢遊高山，下午移動至名古屋',color:'#efc58b',key:'nagoya',tips:['已訂高山旅館為兩晚含早晚餐，退房前把第二次早餐吃完。','特急ひだ10號現行時刻：高山 12:35 → 名古屋 15:04；需提前訂指定席。','三井花園名古屋 Premier 位在名古屋站附近，可從地下通道靠近飯店，第一次容易迷路要預留時間。'],stops:[
     {id:'takah',time:'08:00',note:'旅館早餐後整理行李，11:00 前退房。'},
-    {id:'morning',time:'09:00',note:'宮川朝市散步，吃點心或買伴手禮。',mode:'walk',duration:'步行約 4–7 分',fee:'免費',route:'壱龍→宮川朝市'},
+    {id:'morning',time:'09:00',depart:'08:50',note:'宮川朝市散步，吃點心或買伴手禮。',mode:'walk',duration:'步行約 4–7 分',fee:'免費',route:'壱龍→宮川朝市'},
     {id:'jinya',time:'10:00',note:'高山陣屋成人 ¥500；約 50–60 分。',mode:'walk',duration:'步行約 10–12 分',fee:'門票 ¥500',route:'朝市→高山陣屋'},
     {id:'takayama',time:'12:10',note:'先回旅館取行李，前往高山站搭車。',mode:'walk',duration:'回旅館取行李＋步行約 7 分',route:'高山陣屋→壱龍取行李→JR 高山站'},
-    {id:'nagoyast',time:'15:04',note:'特急ひだ10號參考：高山 12:35 → 名古屋 15:04。',mode:'train',duration:'約 2 小時 29 分',fee:'指定席參考約 ¥6,140',route:'JR 高山站→JR 名古屋站，特急ひだ10號'},
+    {id:'nagoyast',time:'15:04',depart:'12:35',timetable:true,note:'特急ひだ10號參考：高山 12:35 → 名古屋 15:04。',mode:'train',duration:'約 2 小時 29 分',fee:'指定席參考約 ¥6,140',route:'JR 高山站→JR 名古屋站，特急ひだ10號'},
     {id:'nagoyah',time:'15:20',note:'三井花園飯店名古屋 Premier 入住；兩間客房（2/9–2/11）。',mode:'walk',duration:'步行約 5–8 分',route:'JR 名古屋站→名站4丁目11-27'},
     {id:'osu',time:'17:00',note:'大須商店街，晚餐、雜貨、服飾店。',mode:'metro',duration:'約 20–25 分',fee:'免費逛街',route:'名古屋→伏見轉鶴舞線至大須觀音；步行'},
     {id:'nagoyah',time:'20:30',note:'回飯店泡湯或休息。',mode:'metro',duration:'約 20–25 分',route:'大須觀音→名古屋站＋步行'}
    ]},
    {date:'2/10',weekday:'三',title:'犬山城・名古屋城・最後購物',caption:'完整名古屋觀光日｜白天兩座城、晚上採買',color:'#faa88b',key:'nagoya',tips:['犬山城官方公告 2027/1/4 至 2/28 預計施工，天守四樓局部區域限制進入；出發前查詢。','犬山站到犬山城走約 20 分，沿城下町慢走，適合帶父母但多數為戶外步行。','名古屋城本丸御殿最後入場 16:00；犬山停留不宜拖太晚。','若天氣差或爸媽累，可刪除名古屋城，將下午改為榮或名古屋站購物。'],stops:[
     {id:'nagoyah',time:'08:30',note:'從飯店步行前往名鐵名古屋站。'},
-    {id:'inuyamast',time:'09:15',note:'搭名鐵犬山線往犬山，約 30–40 分。',mode:'train',duration:'約 30–40 分',route:'名鐵名古屋站→犬山站'},
+    {id:'inuyamast',time:'09:15',depart:'08:30',boarding:'名鉄名古屋駅',note:'搭名鐵犬山線往犬山，約 30–40 分。',mode:'train',duration:'約 30–40 分',route:'名鐵名古屋站→犬山站'},
     {id:'inuyama',time:'09:45',note:'犬山城門票 ¥1,000；逛城下町與木曾川景觀。',mode:'walk',duration:'從犬山站步行約 20 分',fee:'門票 ¥1,000',route:'犬山站→犬山城下町→犬山城'},
     {id:'nagoyac',time:'14:00',note:'名古屋城與本丸御殿，門票 ¥1,000，預留 1.5 小時。',mode:'train',duration:'犬山→名古屋約 35 分＋地鐵／步行約 20 分',fee:'門票 ¥1,000',route:'犬山站→名鐵名古屋；轉地鐵至名古屋城站'},
     {id:'sakae',time:'17:00',note:'榮商圈、大須或名古屋站購物；晚餐鰻魚飯、味噌豬排、雞翅。',mode:'metro',duration:'約 10–20 分',fee:'免費逛街',route:'名古屋城→榮商圈（名城線及步行）'},
@@ -174,8 +192,8 @@ const DATA={
    ]},
    {date:'2/11',weekday:'四',title:'名古屋中部機場・返台',caption:'09:50 NGO 起飛｜今天不排任何景點',color:'#82b6fa',key:'airport',tips:['務必在 2/10 晚上整理好行李，2/11 清晨直接退房。','規劃 06:00 名鐵名古屋站出發，μSKY 約 30 分抵 NGO；實際 2027/2/11 班表、航廈與櫃台報到時間必須重查。','名鐵 μSKY 全車需另購 μticket，目前 ¥450；除基本車資外另計。','建議至少在國際線起飛前 2.5～3 小時抵達機場。'],stops:[
     {id:'nagoyah',time:'05:30',note:'退房，帶齊護照、機票、託運行李。'},
-    {id:'meitetsu',time:'05:45',note:'步行至名鐵名古屋站；約 06:00 搭 μSKY（班次待確認）。',mode:'walk',duration:'步行約 5–8 分',route:'飯店→名鐵名古屋站'},
-    {id:'ngo',time:'06:30*',note:'約 06:30 抵達中部國際機場；09:50 起飛回台灣。',mode:'train',duration:'μSKY 約 28–37 分',fee:'基本車資＋μticket ¥450',route:'名鐵名古屋站→中部國際機場（μSKY）'}
+    {id:'meitetsu',time:'05:45',depart:'05:30',note:'步行至名鐵名古屋站；約 06:00 搭 μSKY（班次待確認）。',mode:'walk',duration:'步行約 5–8 分',route:'飯店→名鐵名古屋站'},
+    {id:'ngo',time:'06:30*',depart:'06:00',timetable:true,note:'約 06:30 抵達中部國際機場；09:50 起飛回台灣。',mode:'train',duration:'μSKY 約 28–37 分',fee:'基本車資＋μticket ¥450',route:'名鐵名古屋站→中部國際機場（μSKY）'}
    ]}
  ]
 };
@@ -185,6 +203,7 @@ const LNK={
  'JR西日本預約':'https://www.westjr.co.jp/travel-information/tc/',
  'JR特急ひだ時刻參考':'https://jr-group.jp/hida-timetable/',
  '濃飛巴士官方':'https://www.nouhibus.co.jp/route_bus/shirakawago_en',
+ '濃飛巴士運行狀態':'https://www.nouhibus.co.jp/status',
  '濃飛改點公告':'https://www.nouhibus.co.jp/261020-2/',
  '巴士訂座平台':'https://japanbusonline.com/',
  '高山壱龍旅館官網':'https://www.machiyado-ichiryu.com/',
@@ -205,6 +224,163 @@ const HOTELS={
 };
 let selectedDay=0,selectedTab='trip',onlyMain=false,leaflet=null,leafletPins=[],leafletLines=[],useLeaflet=false;
 const $=id=>document.getElementById(id);
+const tripClock = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric',
+  hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+});
+function japanTime(now = new Date()) {
+  const parts = Object.fromEntries(tripClock.formatToParts(now).map(({type, value}) => [type, value]));
+  const date = Number(parts.month) + '/' + Number(parts.day);
+  return {
+    day: parts.year === '2027' ? DATA.days.findIndex(day => day.date === date) : -1,
+    minute: Number(parts.hour) * 60 + Number(parts.minute)
+  };
+}
+function tripMinute(time) {
+  const [hour, minute] = time.slice(0, 5).split(':').map(Number);
+  return hour * 60 + minute;
+}
+function upcomingLeg(day, minute) {
+  return day.stops.findIndex((stop, index) => index > 0 && !stop.optional &&
+    tripMinute(stop.depart || stop.time) >= minute);
+}
+function placeCopy(name) {
+  return `<button type="button" class="miniBtn copyPlace" data-copy-place="${esc(name)}">複製日文地名</button>`;
+}
+function renderTravelCard(now = new Date()) {
+  const clock = japanTime(now);
+  const today = clock.day === selectedDay;
+  const day = DATA.days[selectedDay];
+  const index = upcomingLeg(day, today ? clock.minute : 0);
+  const label = `${today ? '今天 · ' : ''}2 月 ${day.date.split('/')[1]} 日 · 日本時間`;
+  const content = $('travelContent');
+  const key = `${selectedDay}/${today}/${index}`;
+  if (content.dataset.travelKey === key) return;
+  content.dataset.travelKey = key;
+  const dateButton = '<button type="button" class="miniBtn" id="jumpDates">查看每日行程</button>';
+  if (index < 0) {
+    content.innerHTML = `<div class="eyebrow">${label}</div><h2>今天已沒有後續的主要路段</h2><div class="stopActions">${dateButton}</div>`;
+    return;
+  }
+
+  const stop = day.stops[index];
+  const previous = day.stops[index - 1];
+  const from = spot(previous.id);
+  const to = spot(stop.id);
+  const boarding = stop.boarding || from.ja;
+  const timeLabel = stop.depart ? '規劃出發' : '預計抵達';
+  content.innerHTML = `
+    <div class="eyebrow">${label}</div>
+    <h2>${today ? '下一段交通' : '當日首段交通'} · ${esc(to.name)}</h2>
+    <p><strong class="travelTime">${timeLabel} ${esc(stop.depart || stop.time)}</strong> · ${esc(stop.duration || '短距離移動')}</p>
+    <p>${esc(stop.route || from.name + ' → ' + to.name)}</p>
+    <p class="placeName" lang="ja">${esc(boarding)}</p>
+    <p>${stop.timetable ? '班次待核對，請以正式時刻表或車票為準。' : '時間為行程規劃。'}</p>
+    <div class="stopActions">
+      <a class="miniBtn" href="${gmaps(previous.id, stop.id, stop.mode)}" target="_blank" rel="noopener">開啟導航 ↗</a>
+      ${placeCopy(boarding)}
+      ${dateButton}
+    </div>`;
+}
+function renderSnowPlan() {
+  return `<aside class="notice snowPlan" aria-label="白川鄉雪天備案">
+    <strong>❄ 白川鄉雪天備案</strong>
+    <ul>
+      <li><b>出發前</b>查高山～白川鄉的運行狀態。遇停駛或道路封閉，先向售票方確認改票或退票，當天可改留高山。</li>
+      <li><b>展望台接駁停駛</b>就留在荻町村內平地散步。遇結冰，跳過上坡和觀景台。</li>
+      <li><b>回程延誤</b>優先回白川鄉巴士總站確認可搭班次。若可能趕不上 168邸晚餐，先聯絡壱龍確認安排。</li>
+    </ul>
+    <div class="stopActions">
+      <a class="miniBtn" href="${LNK['濃飛巴士運行狀態']}" target="_blank" rel="noopener">查濃飛巴士運行狀態 ↗</a>
+      <a class="miniBtn" href="${LNK['高山壱龍旅館官網']}" target="_blank" rel="noopener">壱龍旅館官網 ↗</a>
+    </div>
+  </aside>`;
+}
+async function copyPlace(button) {
+  const name = button.dataset.copyPlace;
+  try {
+    await navigator.clipboard.writeText(name);
+    button.textContent = '已複製';
+    setTimeout(() => { button.textContent = '複製日文地名'; }, 1500);
+  } catch {
+    let field = button.nextElementSibling;
+    if (!field?.classList.contains('copyField')) {
+      field = document.createElement('input');
+      field.className = 'copyField';
+      field.readOnly = true;
+      field.value = name;
+      field.setAttribute('aria-label', '日文地名，請手動複製');
+      button.after(field);
+    }
+    field.focus();
+    field.select();
+  }
+}
+function placeTravelCard() {
+  const card = $('travelCard');
+  if (isCompact()) $('mapArea').before(card);
+  else $('tripTab').before(card);
+}
+function initTravelFeatures() {
+  selectedDay = Math.max(0, japanTime().day);
+  placeTravelCard();
+  window.matchMedia('(max-width: 850px)').addEventListener('change', placeTravelCard);
+  document.addEventListener('click', event => {
+    const copyButton = event.target.closest('[data-copy-place]');
+    if (copyButton) copyPlace(copyButton);
+    if (event.target.closest('#jumpDates')) {
+      changeTab('trip');
+      $('dayNav').querySelector('[aria-pressed="true"]').focus({preventScroll: true});
+      $('dayNav').scrollIntoView({block: 'center'});
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updateTravelClock();
+  });
+  setInterval(updateTravelClock, 15000);
+}
+let previousTripMinute;
+function updateTravelClock() {
+  const now = new Date();
+  const minute = Math.floor(now.getTime() / 60000);
+  if (minute === previousTripMinute) return;
+  previousTripMinute = minute;
+  const day = japanTime(now).day;
+  if (day !== automaticDay && day >= 0 && selectedDay === automaticDay) chooseDay(day);
+  else if (day === selectedDay || automaticDay === selectedDay) renderTravelCard(now);
+  automaticDay = day;
+}
+let automaticDay = Math.max(0, japanTime().day);
+function initOffline() {
+  if (!('serviceWorker' in navigator)) {
+    $('offlineStatus').textContent = '此瀏覽器無法儲存離線行程。';
+    return;
+  }
+  let ready = Boolean(navigator.serviceWorker.controller);
+  function showStatus() {
+    $('offlineStatus').textContent = ready
+      ? (navigator.onLine ? '已儲存離線行程 · 地圖底圖與導航需連線' : '離線模式 · 可查看行程與住宿地址')
+      : '正在準備離線行程。';
+  }
+  showStatus();
+  window.addEventListener('offline', () => {
+    showStatus();
+    showMapFallback();
+  });
+  window.addEventListener('online', () => {
+    showStatus();
+    initLeaflet();
+  });
+  navigator.serviceWorker.register('./sw.js')
+    .then(() => navigator.serviceWorker.ready)
+    .then(() => {
+      ready = true;
+      showStatus();
+    })
+    .catch(() => {
+      if (!ready) $('offlineStatus').textContent = '離線行程尚未儲存，請連線後重新開啟。';
+    });
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function modeIcon(s){return ({train:'🚆',metro:'🚇',walk:'🚶',bus:'🚌',taxi:'🚕'}[s]||'➜');}
 function spot(id){return DATA.spots[id]};
@@ -213,9 +389,9 @@ function gmaps(from,to,mode){let a=spot(from),b=spot(to);let fm=(mode==='walk'?'
 function loclink(id){let p=spot(id);return `https://www.google.com/maps/search/?api=1&query=${mapsQuery(p)}`;}
 function refresh(){renderNav();renderDay();renderHotel();renderPrep();renderBudget();paintMap();}
 function renderNav(){ $('dayNav').innerHTML=DATA.days.map((d,i)=>`<button class="dayBtn ${selectedDay===i?'active':''}" data-day="${i}" aria-pressed="${selectedDay===i}"><span class="dayNum">${d.date}</span><span class="dayWeek">${d.weekday} · D${i+1}</span></button>`).join('');$('dayNav').querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>chooseDay(+b.dataset.day)));}
-function renderDay(){let d=DATA.days[selectedDay];let html=`<div class="dayHeader"><small>DAY ${selectedDay+1} / 08 · 2027/${d.date}（${d.weekday}）</small><h2>${esc(d.title)}</h2><p>${esc(d.caption)}</p><button type="button" class="focusChip miniBtn" id="dayMapJump">◎ 查看當日地圖</button></div><div class="timeline">`;
+function renderDay(){renderTravelCard();let d=DATA.days[selectedDay];let html=`<div class="dayHeader"><small>DAY ${selectedDay+1} / 08 · 2027/${d.date}（${d.weekday}）</small><h2>${esc(d.title)}</h2><p>${esc(d.caption)}</p><button type="button" class="focusChip miniBtn" id="dayMapJump">◎ 查看當日地圖</button></div>${d.key==='shirakawa'?renderSnowPlan():''}<div class="timeline">`;
  d.stops.forEach((s,i)=>{let p=spot(s.id);if(i>0){let prev=d.stops[i-1],txt=s.route||`${spot(prev.id).name} → ${p.name}`;html+=`<div class="routeConnector"><span class="icon">${modeIcon(s.mode)}</span><div class="rtext"><strong>${esc(s.duration||'短距離移動')}</strong><br>${esc(txt)}</div><button type="button" class="legOpen" data-leg="${i}">地圖 ↗</button></div>`;}
- html+=`<article class="stopCard"><div class="stopTime">${esc(s.time)}</div><div class="stopMain"><h3>${esc(p.name)} ${s.optional?'<span style="font-size:10px;color:#e3ba8c">（選配）</span>':''}</h3><div class="desc">${esc(s.note)} ${s.fee?`<span class="fee"> ${esc(s.fee)}</span>`:''}</div><div class="stopActions"><button class="miniBtn" data-point="${esc(s.id)}">◎ 地圖定位</button><a class="miniBtn" href="${loclink(s.id)}" target="_blank" rel="noopener">Google 地點 ↗</a>${i>0?`<a class="miniBtn" href="${gmaps(d.stops[i-1].id,s.id,s.mode)}" target="_blank" rel="noopener">兩點導航 ↗</a>`:''}</div></div></article>`});
+ html+=`<article class="stopCard"><div class="stopTime">${esc(s.time)}</div><div class="stopMain"><h3>${esc(p.name)} ${s.optional?'<span style="font-size:10px;color:#e3ba8c">（選配）</span>':''}</h3><div class="desc">${esc(s.note)} ${s.fee?`<span class="fee"> ${esc(s.fee)}</span>`:''}</div><div class="placeName" lang="ja">${esc(p.ja)}</div><div class="stopActions">${placeCopy(p.ja)}<button class="miniBtn" data-point="${esc(s.id)}">◎ 地圖定位</button><a class="miniBtn" href="${loclink(s.id)}" target="_blank" rel="noopener">Google 地點 ↗</a>${i>0?`<a class="miniBtn" href="${gmaps(d.stops[i-1].id,s.id,s.mode)}" target="_blank" rel="noopener">兩點導航 ↗</a>`:''}</div></div></article>`});
  html+='</div><div class="notice"><strong>⚠ 當日注意事項</strong><br>'+d.tips.map(t=>'• '+esc(t)).join('<br>')+'</div>';
  if(d.key==='takayama'||d.key==='shirakawa')html+=`<div class="card" style="margin-top:12px"><h3>♨ 壱龍已訂兩晚一泊二食</h3><p>你訂的方案含兩頓晚餐與兩頓早餐，晚餐在飯店對面的 168邸。白川鄉那天務必搭能趕上飯店用餐時間的回程車。</p><a class="miniBtn" href="${LNK['高山壱龍旅館官網']}" target="_blank" rel="noopener">旅館官網 ↗</a></div>`;
  $('dayDetail').innerHTML=html;
@@ -246,7 +422,38 @@ function chooseDay(i){selectedDay=i;renderNav();renderDay();paintMap();}
 function changeTab(t){selectedTab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));['trip','hotel','prep','budget'].forEach(k=>$(k+'Tab').hidden=(t!==k));if(t==='trip')paintMap();}
 function pointsForDay(){let arr=DATA.days[selectedDay].stops.map(s=>s.id);return [...new Set(arr)];}
 function iconFor(p){return L.divIcon({className:'',html:`<div class="custom-pin ${p.type==='hotel'?'hotel':p.type==='airport'?'airport':''}"><span>${p.icon||'📍'}</span></div>`,iconSize:[30,35],iconAnchor:[16,31]});}
-function initLeaflet(){if(!window.L){$('mapStatus').textContent='離線示意地圖模式：需連網才能顯示 OpenStreetMap 街道圖；點下方導航可另開詳細路線。';renderFallback();return;}try{leaflet=L.map('map',{zoomControl:false,attributionControl:true,preferCanvas:true,scrollWheelZoom:!isCompact(),minZoom:6,maxZoom:18});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'}).addTo(leaflet);L.control.zoom({position:'bottomleft'}).addTo(leaflet);useLeaflet=true;$('mapArea').classList.add('live');paintMap();}catch(e){console.warn(e);renderFallback();}}
+function showMapFallback() {
+  useLeaflet = false;
+  $('mapArea').classList.remove('live');
+  $('mapStatus').textContent = '示意地圖 · OpenStreetMap 底圖與 Google Maps 導航需連線。';
+  renderFallback();
+}
+function initLeaflet() {
+  if (!window.L || !navigator.onLine) {
+    showMapFallback();
+    return;
+  }
+  try {
+    if (!leaflet) {
+      leaflet = L.map('map', {
+        zoomControl: false, attributionControl: true, preferCanvas: true,
+        scrollWheelZoom: !isCompact(), minZoom: 6, maxZoom: 18
+      });
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+      }).addTo(leaflet);
+      L.control.zoom({position: 'bottomleft'}).addTo(leaflet);
+    }
+    useLeaflet = true;
+    $('mapArea').classList.add('live');
+    $('mapStatus').textContent = '地圖顯示行程順序，非道路導航。2027 列車／巴士請以官方時刻表為準。';
+    paintMap();
+  } catch (error) {
+    console.warn(error);
+    showMapFallback();
+  }
+}
 function clearLeaflet(){leafletPins.forEach(x=>leaflet.removeLayer(x));leafletLines.forEach(x=>leaflet.removeLayer(x));leafletPins=[];leafletLines=[];}
 function paintMap(){if(!useLeaflet){renderFallback();return;}clearLeaflet();leaflet.closePopup();let day=DATA.days[selectedDay];let stops=day.stops;let active=pointsForDay();let all=[...new Set(['kix','osakah','osakast','inari','kiyomizu','takayama','takah','shirakawa','nagoyast','nagoyah','inuyama','ngo',...active])];all.forEach(id=>{let p=spot(id);let m=L.marker([p.lat,p.lon],{icon:iconFor(p),opacity:active.includes(id)?1:.55}).addTo(leaflet).bindTooltip(p.name,{direction:'top',className:'custom-tip'});m.on('click',()=>pointPopup(id));leafletPins.push(m)});
  for(let i=1;i<stops.length;i++){let a=spot(stops[i-1].id),b=spot(stops[i].id),s=stops[i],col=s.mode==='walk'?'#edb481':s.mode==='bus'?'#45d5a9':'#56c7e9';if(a.lat===b.lat&&a.lon===b.lon)continue;let line=L.polyline([[a.lat,a.lon],[b.lat,b.lon]],{color:col,weight:s.mode==='train'?5:4,opacity:.85,dashArray:s.mode==='walk'?'4 9':s.mode==='bus'?'9 7':undefined}).addTo(leaflet);line.on('click',()=>legPopup(i));leafletLines.push(line)}fitDay(false);}
@@ -262,7 +469,7 @@ function pointPopup(id){if(!useLeaflet)return;let p=spot(id),u=loclink(id);L.pop
 function legPopup(i){if(!useLeaflet)return;let stops=DATA.days[selectedDay].stops,s=stops[i],a=spot(stops[i-1].id),b=spot(s.id),loc=[(a.lat+b.lat)/2,(a.lon+b.lon)/2];L.popup({maxWidth:310}).setLatLng(loc).setContent(`<div style="font-family:inherit;font-size:12px;line-height:1.6"><strong>${esc(a.name)} → ${esc(b.name)}</strong><br>${modeIcon(s.mode)} ${esc(s.route)}<br><b>${esc(s.duration||'短距離移動')}</b>${s.fee?` · ${esc(s.fee)}`:''}<br><a href="${gmaps(stops[i-1].id,s.id,s.mode)}" target="_blank" rel="noopener">在 Google Maps 開始路線規劃 ↗</a></div>`).openOn(leaflet)}
 function renderFallback(){let svg=$('fallback'),routes=$('svgRoutes'),nodes=$('svgStops');if(!routes||!nodes)return;const project=(p)=>{let desktop=!isCompact();let x=desktop?505+(p.lon-135.23)*225:180+(p.lon-135.23)*280;let y=desktop?740-(p.lat-34.43)*280:740-(p.lat-34.43)*275;return [x,y]};let day=DATA.days[selectedDay],unique=pointsForDay();routes.innerHTML='';nodes.innerHTML='';day.stops.forEach((s,i)=>{if(!i)return;let a=project(spot(day.stops[i-1].id)),b=project(spot(s.id));routes.innerHTML+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${s.mode==='bus'?'#227f55':'#177d9a'}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${s.mode==='walk'?'5 8':''}" opacity=".85"/>`});unique.forEach(id=>{let p=spot(id),xy=project(p);nodes.innerHTML+=`<circle tabindex="0" class="fallback-marker" data-id="${id}" cx="${xy[0]}" cy="${xy[1]}" r="8" fill="${p.type==='hotel'?'#f7ae5f':'#21a9b6'}" stroke="#fff" stroke-width="3"/><text class="fallback-label" x="${xy[0]+13}" y="${xy[1]-11}">${esc(p.name.slice(0,12))}</text>`});nodes.querySelectorAll('.fallback-marker').forEach(x=>{x.addEventListener('click',()=>alert(spot(x.dataset.id).name+'\n'+DATA.days[selectedDay].title));x.addEventListener('keydown',e=>{if(e.key==='Enter')x.click()})});}
 function sourcesModal(){ $('sourceLinks').innerHTML=Object.entries(LNK).map(([t,u])=>`<div class="linkRow"><span>${esc(t)}</span><a href="${u}" target="_blank" rel="noopener">開啟 ↗</a></div>`).join('');$('infoModal').classList.add('show');}
-function init(){refresh();document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>changeTab(b.dataset.tab)));$('fitBtn').addEventListener('click',fitAll);$('focusBtn').addEventListener('click',()=>fitDay(true));$('sourceBtn').addEventListener('click',sourcesModal);$('closeModal').addEventListener('click',()=>$('infoModal').classList.remove('show'));$('infoModal').addEventListener('click',e=>{if(e.target===$('infoModal'))$('infoModal').classList.remove('show')});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('infoModal').classList.remove('show');if(e.key==='ArrowRight'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT')chooseDay(Math.min(7,selectedDay+1));if(e.key==='ArrowLeft'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT')chooseDay(Math.max(0,selectedDay-1))});}
+function init(){initTravelFeatures();refresh();initOffline();document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>changeTab(b.dataset.tab)));$('fitBtn').addEventListener('click',fitAll);$('focusBtn').addEventListener('click',()=>fitDay(true));$('sourceBtn').addEventListener('click',sourcesModal);$('closeModal').addEventListener('click',()=>$('infoModal').classList.remove('show'));$('infoModal').addEventListener('click',e=>{if(e.target===$('infoModal'))$('infoModal').classList.remove('show')});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('infoModal').classList.remove('show');if(e.key==='ArrowRight'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT')chooseDay(Math.min(7,selectedDay+1));if(e.key==='ArrowLeft'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT')chooseDay(Math.max(0,selectedDay-1))});}
 init();
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onload="initLeaflet()" onerror="initLeaflet()"></script>

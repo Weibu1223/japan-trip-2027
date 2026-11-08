@@ -80,7 +80,7 @@ const DATA={
   spots:{
    kix:{name:'關西國際機場 KIX',lat:34.434,lon:135.231,icon:'✈️',type:'airport'},
    tengachaya:{name:'天下茶屋站',lat:34.6373,lon:135.4969,icon:'🚉'},
-   osakah:{name:'City Plaza Osaka',lat:34.684,lon:135.5139,icon:'🏨',type:'hotel'},
+   osakah:{name:'City Plaza Osaka',lat:34.68425,lon:135.51062,mapsName:'City Plaza Osaka',icon:'🏨',type:'hotel'},
    castleO:{name:'大阪城天守閣',lat:34.6873,lon:135.5262,icon:'🏯'},
    tenma:{name:'天神橋筋商店街',lat:34.703,lon:135.5126,icon:'🍜'},
    umeda:{name:'梅田空中庭園',lat:34.7052,lon:135.4895,icon:'🌆'},
@@ -94,8 +94,8 @@ const DATA={
    takah:{name:'まち宿 壱龍',lat:36.1424,lon:137.2561,icon:'♨️',type:'hotel'},
    oldtown:{name:'高山三町古街',lat:36.1407,lon:137.2607,icon:'🏘'},
    iroha:{name:'168邸（晚餐）',lat:36.1425,lon:137.256,icon:'🍱'},
-   noh:{name:'高山濃飛巴士中心',lat:36.1410,lon:137.2516,icon:'🚌'},
-   shbus:{name:'白川鄉巴士總站',lat:36.2571,lon:136.9045,icon:'🚌'},
+   noh:{name:'高山濃飛巴士中心',lat:36.141765,lon:137.251575,mapsName:'高山濃飛バスセンター',icon:'🚌'},
+   shbus:{name:'白川鄉巴士總站',lat:36.261996,lon:136.9068816,mapsName:'白川郷バスターミナル',icon:'🚌'},
    shirakawa:{name:'白川鄉荻町合掌聚落',lat:36.2577,lon:136.9072,icon:'❄️'},
    obsv:{name:'城山展望台',lat:36.2609,lon:136.9003,icon:'📷'},
    minka:{name:'合掌造民家園',lat:36.2543,lon:136.9058,icon:'🏠'},
@@ -208,8 +208,9 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function modeIcon(s){return ({train:'🚆',metro:'🚇',walk:'🚶',bus:'🚌',taxi:'🚕'}[s]||'➜');}
 function spot(id){return DATA.spots[id]};
-function gmaps(from,to,mode){let a=spot(from),b=spot(to);let fm=(mode==='walk'?'walking':mode==='bus'||mode==='train'||mode==='metro'?'transit':'driving');let o=encodeURIComponent(`${a.lat},${a.lon}`),d=encodeURIComponent(`${b.lat},${b.lon}`);return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=${fm}`;}
-function loclink(id){let p=spot(id);return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.lat},${p.lon}`)}`;}
+function mapsQuery(p){return encodeURIComponent(p.mapsName || (p.lat + ',' + p.lon));}
+function gmaps(from,to,mode){let a=spot(from),b=spot(to);let fm=(mode==='walk'?'walking':mode==='bus'||mode==='train'||mode==='metro'?'transit':'driving');let o=mapsQuery(a),d=mapsQuery(b);return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=${fm}`;}
+function loclink(id){let p=spot(id);return `https://www.google.com/maps/search/?api=1&query=${mapsQuery(p)}`;}
 function refresh(){renderNav();renderDay();renderHotel();renderPrep();renderBudget();paintMap();}
 function renderNav(){ $('dayNav').innerHTML=DATA.days.map((d,i)=>`<button class="dayBtn ${selectedDay===i?'active':''}" data-day="${i}" aria-pressed="${selectedDay===i}"><span class="dayNum">${d.date}</span><span class="dayWeek">${d.weekday} · D${i+1}</span></button>`).join('');$('dayNav').querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>chooseDay(+b.dataset.day)));}
 function renderDay(){let d=DATA.days[selectedDay];let html=`<div class="dayHeader"><small>DAY ${selectedDay+1} / 08 · 2027/${d.date}（${d.weekday}）</small><h2>${esc(d.title)}</h2><p>${esc(d.caption)}</p><button type="button" class="focusChip miniBtn" id="dayMapJump">◎ 查看當日地圖</button></div><div class="timeline">`;

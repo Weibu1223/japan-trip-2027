@@ -65,6 +65,16 @@
 @media (max-width: 850px) {
   .travelCard { margin: 0; padding: 14px 16px; border-radius: 0; border-width: 0 0 1px; }
 }
+.boardingGuide { margin: 6px 0 10px; border: 1px solid #477286; border-radius: 9px; background: #15394b; color: #e2f4f7; font-size: 13px; line-height: 1.55; }
+.boardingGuide summary { cursor: pointer; padding: 10px 11px; min-height: 44px; overflow-wrap: anywhere; }
+.boardingGuide summary::marker { color: #91ddec; }
+.boardingGuide summary:focus-visible { outline: 3px solid #80daed; outline-offset: 2px; }
+.boardingGuide ol { padding: 0 12px 0 30px; margin: 0 0 8px; }
+.boardingGuide li + li { margin-top: 7px; }
+.boardingGuide .stopActions { padding: 0 10px 9px; }
+.boardingGuide .miniBtn { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+.timeline .boardingGuide { margin-left: 54px; }
+@media (max-width: 850px) { .timeline .boardingGuide { margin-left: 29px; } }
 </style>
 </head>
 <body>
@@ -186,7 +196,7 @@ const DATA={
     {id:'nagoyah',time:'08:30',note:'從飯店步行前往名鐵名古屋站。'},
     {id:'inuyamast',time:'09:15',depart:'08:30',boarding:'名鉄名古屋駅',note:'搭名鐵犬山線往犬山，約 30–40 分。',mode:'train',duration:'約 30–40 分',route:'名鐵名古屋站→犬山站'},
     {id:'inuyama',time:'09:45',note:'犬山城門票 ¥1,000；逛城下町與木曾川景觀。',mode:'walk',duration:'從犬山站步行約 20 分',fee:'門票 ¥1,000',route:'犬山站→犬山城下町→犬山城'},
-    {id:'nagoyac',time:'14:00',note:'名古屋城與本丸御殿，門票 ¥1,000，預留 1.5 小時。',mode:'train',duration:'犬山→名古屋約 35 分＋地鐵／步行約 20 分',fee:'門票 ¥1,000',route:'犬山站→名鐵名古屋；轉地鐵至名古屋城站'},
+    {id:'nagoyac',time:'14:00',note:'名古屋城與本丸御殿，門票 ¥1,000，預留 1.5 小時。',mode:'train',duration:'犬山→名古屋約 35 分＋地鐵／步行約 20 分',fee:'門票 ¥1,000',route:'犬山站→名鐵名古屋；東山線到榮，轉名城線至名古屋城站'},
     {id:'sakae',time:'17:00',note:'榮商圈、大須或名古屋站購物；晚餐鰻魚飯、味噌豬排、雞翅。',mode:'metro',duration:'約 10–20 分',fee:'免費逛街',route:'名古屋城→榮商圈（名城線及步行）'},
     {id:'nagoyah',time:'20:00',note:'回飯店整理行李；隔天清晨出發。',mode:'metro',duration:'約 15–20 分',route:'榮→名古屋站／步行到飯店'}
    ]},
@@ -196,6 +206,151 @@ const DATA={
     {id:'ngo',time:'06:30*',depart:'06:00',timetable:true,note:'約 06:30 抵達中部國際機場；09:50 起飛回台灣。',mode:'train',duration:'μSKY 約 28–37 分',fee:'基本車資＋μticket ¥450',route:'名鐵名古屋站→中部國際機場（μSKY）'}
    ]}
  ]
+};
+const BOARDING_GUIDES = {
+  'kix:tengachaya': {
+    summary: '關西機場 T1 2F 連絡橋 → 南海驗票口',
+    steps: [
+      '第 1 航廈入境後上 2F，跟「鉄道／Railways」走連絡橋到關西空港站。若在第 2 航廈抵達，先搭免費接駁巴士到 Aeroplaza，再走到車站。',
+      '找 2F 的「南海電車／Nankai」驗票口。在發車看板找「空港急行 なんば」或已購票的「ラピート」，依顯示的番線下到 1F 月台。',
+      '在「天下茶屋」下車，準備轉乘 Osaka Metro 堺筋線。'
+    ],
+    links: [['機場到車站', 'https://www.kansai-airport.or.jp/en/access/to-airport/train'], ['南海關西空港站構內圖', 'https://www.nankai.co.jp/traffic/station/kansaiairport.html']]
+  },
+  'tengachaya:osakah': {
+    summary: '天下茶屋：南海 2F 出閘 → 地面地鐵入口 → 堺筋本町 12 號出口',
+    steps: [
+      '南海列車下車後，由月台下到 2F 驗票口出閘，再下到 1F，跟「地下鉄 堺筋線／Osaka Metro」找地面驗票口。',
+      '通過 Metro 驗票口後下到月台，依發車板到 2 或 3 號月台乘車。往「天神橋筋六丁目／北千里／高槻市」等方向的車都會先到堺筋本町。',
+      '堺筋本町跟「12号出口」出站，步行約 6 分鐘到 City Plaza Osaka。若從 2 號月台下車並需要電梯，可依構內圖走西北驗票口、15 號出口的電梯上地面。'
+    ],
+    links: [['南海天下茶屋站', 'https://www.nankai.co.jp/traffic/station/tengachaya.html'], ['Metro 天下茶屋站', 'https://subway.osakametro.co.jp/station_guide/K/k20/'], ['堺筋本町構內圖', 'https://subway.osakametro.co.jp/station_guide/C/c17/'], ['飯店步行圖', 'https://cityplaza.or.jp/access/']]
+  },
+  'osakah:dotonbori': {
+    summary: '堺筋本町 12 號入口 → 堺筋線 1 號月台',
+    steps: ['由飯店走到「堺筋本町 12号出入口」，找堺筋線 K15 驗票口。', '下到堺筋線月台，搭 1 號往「日本橋・天下茶屋方面」。到日本橋後跟「道頓堀」出口指標。'],
+    links: [['堺筋本町構內圖', 'https://subway.osakametro.co.jp/station_guide/C/c17/'], ['日本橋出口圖', 'https://subway.osakametro.co.jp/station_guide/K/K17/map.php']]
+  },
+  'castleO:tenma': {
+    summary: 'JR 森ノ宮北口 → 2F 1 號月台',
+    steps: ['從大阪城公園走到「JR 森ノ宮駅 北口」，認 JR 標誌與「大阪環状線」，由地面層進站。', '上 2F 搭 1 號月台「京橋・大阪方面」，在「天満」下車。'],
+    links: [['JR 森ノ宮構內圖', 'https://eki.jr-odekake.net/premises?id=0610510']]
+  },
+  'tenma:umeda': {
+    summary: 'JR 天滿 1F 驗票口 → 2F 1 號月台',
+    steps: ['從天神橋筋商店街回到「JR 天満駅」，在 1F 進閘，上 2F 搭 1 號月台「大阪・西九条方面」。', '下一站就是 JR 大阪站。出站後找「うめきた広場／グランフロント大阪」，往梅田藍天大廈走。'],
+    links: [['JR 天滿構內圖', 'https://eki.jr-odekake.net/premises?id=0610513'], ['JR 大阪站構內圖', 'https://eki.jr-odekake.net/premises?id=0610130']]
+  },
+  'umeda:dotonbori': {
+    summary: 'Osaka Metro 梅田 M16 → 御堂筋線 1 號月台',
+    steps: ['從藍天大廈走回梅田站區，進地下通道後跟紅色「御堂筋線 M16 梅田」指標。', '由御堂筋線驗票口下到 1 號月台，搭「なんば・天王寺・なかもず方面」。難波下車後跟「道頓堀／戎橋」方向。'],
+    links: [['Metro 梅田構內圖', 'https://subway.osakametro.co.jp/station_guide/M/m16/index.php'], ['Metro 難波構內圖', 'https://subway.osakametro.co.jp/station_guide/M/m20/']]
+  },
+  'dotonbori:osakah': {
+    summary: '日本橋 K17 → 堺筋線北行 → 堺筋本町 12 號出口',
+    steps: ['從道頓堀走回 Osaka Metro 日本橋，找「堺筋線 K17」驗票口及「北浜・天六」方向。', '搭往「天神橋筋六丁目／北千里／高槻市」方向的車，在堺筋本町下車，走 12 號出口回飯店。'],
+    links: [['日本橋入口圖', 'https://subway.osakametro.co.jp/station_guide/K/K17/map.php'], ['飯店步行圖', 'https://cityplaza.or.jp/access/']]
+  },
+  'osakah:inari': {
+    summary: '堺筋本町 12 號入口 → 北濱轉京阪 1 號月台',
+    steps: ['由堺筋本町 12 號入口找堺筋線 K15，搭 2 號月台「北浜・天六方面」，坐 1 站到北濱。', '在北濱跟「京阪電車」指標，出 Metro 驗票口再進京阪驗票口。京阪 1 號月台往「三条・出町柳」。', '搭有停「伏見稲荷」的車。若搭特急，先看停靠站，在丹波橋等有停靠的站轉停伏見稻荷的普通車。'],
+    links: [['堺筋本町構內圖', 'https://subway.osakametro.co.jp/station_guide/C/c17/'], ['京阪各站乘車位置', 'https://www.keihan.co.jp/traffic/station/noriba/']]
+  },
+  'inari:kiyomizu': {
+    summary: '京阪伏見稻荷：走往出町柳方向的獨立驗票口',
+    steps: ['從神社回到「京阪 伏見稲荷駅」，按「三条・出町柳方面」選驗票口。兩個方向的驗票口各自通往月台，進閘前先確認。', '搭會停「清水五条」的普通車。下車後從地下驗票口出站，往鴨川東側的五條通上坡走。'],
+    links: [['京阪伏見稻荷構內圖', 'https://www.keihan.co.jp/traffic/station/assets/pdf/info/station-151.pdf'], ['清水五條站', 'https://www.keihan.co.jp/traffic/station/161/info.html']]
+  },
+  'gion:osakah': {
+    summary: '祇園四條 → 京阪大阪方向 → 北濱轉堺筋線',
+    steps: ['由四條大橋東端附近進「京阪 祇園四条」，下到地下驗票口，找「淀屋橋・中之島線方面」。', '要直達北濱，選「淀屋橋行」並確認停北濱。到北濱先出京阪閘，跟「Osaka Metro 堺筋線」進地鐵。', '搭往「天下茶屋」方向 1 站到堺筋本町，走 12 號出口回飯店。'],
+    links: [['祇園四條構內圖', 'https://www.keihan.co.jp/traffic/station/assets/pdf/info/station-162.pdf'], ['Metro 北濱構內圖', 'https://subway.osakametro.co.jp/station_guide/K/K14/index.php']]
+  },
+  'osakah:osakast': {
+    summary: '堺筋本町中央線 2 號 → 本町轉御堂筋線 → JR 大阪站',
+    steps: ['走堺筋本町 12 號入口，跟綠色「中央線 C17」標示走到 2 號月台，搭「本町・夢洲方面」1 站。', '本町下車後在閘內跟紅色「御堂筋線 M18」走轉乘通道，搭「梅田・新大阪・箕面萱野方面」到梅田 M16。', '梅田出地鐵閘後跟「JR大阪駅」，找 1F「御堂筋口」或「中央口」。若要接ひだ25號，下一段有 11 號月台的走法。'],
+    links: [['堺筋本町構內圖', 'https://subway.osakametro.co.jp/station_guide/C/c17/'], ['本町轉乘圖', 'https://subway.osakametro.co.jp/station_guide/C/C16/'], ['JR 大阪站構內圖', 'https://eki.jr-odekake.net/premises?id=0610130']]
+  },
+  'osakast:takayama': {
+    summary: 'JR 大阪 1F 御堂筋口 → 2F 11 號月台（現行時刻表參考）',
+    steps: ['從 Metro 梅田跟「JR大阪駅」找到 1F「御堂筋口」進 JR。從中央口進站也可，先在閘口附近看「発車標」。', '用「特急 ひだ25号」「高山」「08:02」三項核對。JR 西日本現行時刻表列 11 號月台，出發當天按看板顯示的番線走。', '若仍是 11 號，跟「11番のりば」走御堂筋口閘內的中 2F 連絡通道，再上到 2F 月台。按車票的「号車」與月台乘車位置排隊。'],
+    links: [['JR 大阪站構內圖', 'https://eki.jr-odekake.net/premises?id=0610130'], ['JR 西日本現行班次與番線', 'https://timetable.jr-odekake.net/station-timetable/2796076002?date=20261121']]
+  },
+  'takayama:takah': {
+    summary: '高山站上 2F 出閘 → 乗鞍口（東口）',
+    steps: ['下車後由月台上 2F，到「改札口」出閘。', '順「乗鞍口（東口）／市街地」到地面，再往花川町的旅館走。'],
+    links: [['高山市 JR 高山站指南', 'https://www.city.takayama.lg.jp/shisei/1000061/1002140/1002143.html']]
+  },
+  'takah:noh': {
+    summary: 'JR 高山站東口旁的地面巴士中心',
+    steps: ['從旅館往「JR高山駅 乗鞍口（東口）」走。到站前廣場後，找一樓的「高山濃飛バスセンター」及「きっぷ売り場」。', '先到巴士中心看發車看板，再往外側的編號站柱。JR 驗票口在 2F，搭巴士留在地面層即可。'],
+    links: [['濃飛巴士乘車地圖', 'https://www.nouhibus.co.jp/media/2026/03/highwaybus-timetable.pdf']]
+  },
+  'noh:shbus': {
+    summary: '高山濃飛巴士中心 1F → 4 號乘車處（以車票與站牌為準）',
+    steps: ['進高山濃飛巴士中心候車區，找預約時間與「白川郷（荻町）」。行程暫排的 09:35 是往高岡方向的班次，看板可能寫「高岡」，請核對有停白川鄉。', '往室外「4番のりば」，用票面或窗口核對本班的乘車處。部分往金澤的班次會直達，須確認有停白川鄉。'],
+    links: [['濃飛巴士乘車地圖', 'https://www.nouhibus.co.jp/media/2026/03/highwaybus-timetable.pdf'], ['高岡線班次與 4 號乘車處', 'https://www.iruka-net.jp/shirakawago-takayama-line'], ['濃飛巴士改點公告', 'https://www.nouhibus.co.jp/261020-2/']]
+  },
+  'shirakawa:obsv': {
+    summary: '和田家前的「展望台行きシャトルバス」站牌',
+    steps: ['在荻町村內找「和田家」，到前方的展望台接駁乘車點。', '在站牌核對去程、末班回程和當天是否行駛。雪天停駛時依當日備案留在村內。'],
+    links: [['白川鄉觀光協會接駁資訊', 'https://shirakawa-go.gr.jp/faq/5/']]
+  },
+  'shbus:noh': {
+    summary: '白川鄉巴士總站地面候車區 → 3 號「高山」',
+    steps: ['回到荻町北側「白川郷バスターミナル」，先在候車室看「高山」與預約時間，核對票面或詢問售票窗口。', '濃飛巴士站圖標示高山方向在室外「3番のりば」。依當日看板的乘車處排隊。'],
+    links: [['濃飛巴士乘車地圖', 'https://www.nouhibus.co.jp/media/2026/03/highwaybus-timetable.pdf'], ['白川村巴士總站資訊', 'https://www.vill.shirakawa.lg.jp/1602.htm']]
+  },
+  'takayama:nagoyast': {
+    summary: '高山站乗鞍口 → 2F 驗票 → 依看板下到 1F 月台',
+    steps: ['從市區側「乗鞍口（東口）」進站，上 2F「匠通り」找 JR 驗票口。', '核對「特急 ひだ10号」「名古屋」與車票的發車時間。按看板的「のりば」下到 1F 對應月台，再找車票的「号車」。'],
+    links: [['高山站樓層與入口', 'https://www.city.takayama.lg.jp/shisei/1000061/1002140/1002143.html']]
+  },
+  'nagoyast:nagoyah': {
+    summary: 'JR 名古屋站往桜通口（東側）',
+    steps: ['下車後跟「桜通口」出 JR，往名駅通、名古屋站前圓環方向。', '再往名站四丁目找「三井ガーデンホテル名古屋プレミア」。'],
+    links: [['名古屋飯店交通與入口', 'https://www.gardenhotels.co.jp/nagoya-premier/eng/']]
+  },
+  'nagoyah:osu': {
+    summary: '地下鐵名古屋 B2 1 號 → 伏見 B3 3 號 → 大須觀音',
+    steps: ['在名古屋站地下街找黃色「地下鉄 東山線 H08」，從 B1 驗票口下到 B2，搭 1 號往「伏見・栄・藤が丘」。', '伏見下車後在閘內跟藍色「鶴舞線 T07」，下到 B3 搭 3 號往「八事・赤池」，1 站到大須觀音。', '到大須觀音由 B2 月台上 B1 驗票口，跟「大須観音・大須商店街」出站。'],
+    links: [['地下鐵名古屋月台', 'https://www.kotsu.city.nagoya.jp/rp/READER/trp0004207.htm'], ['伏見轉乘月台', 'https://map.kotsu.city.nagoya.jp/rp/reader/trp0004201.htm']]
+  },
+  'osu:nagoyah': {
+    summary: '大須觀音 B2 2 號 → 伏見轉東山線 2 號',
+    steps: ['由大須觀音站 B1 驗票口下到 B2 鶴舞線 2 號，搭「伏見・上小田井方面」。', '到伏見在閘內轉黃色東山線 2 號「名古屋・高畑方面」。名古屋下車後往「桜通口／名駅通」方向回飯店。'],
+    links: [['大須觀音站月台', 'https://map.kotsu.city.nagoya.jp/rp/reader/trp0001095.htm'], ['伏見站月台', 'https://map.kotsu.city.nagoya.jp/rp/reader/trp0004201.htm']]
+  },
+  'nagoyah:inuyamast': {
+    summary: '名鐵名古屋 B1 中央驗票口 → B2 1 號月台',
+    steps: ['從飯店往名站通的「名鉄百貨店／名鉄名古屋駅」方向，找 B1「中央改札口（入口専用）」。', '進站下到 B2 1 號月台。這個月台有多個方向，找發車板上的「犬山線」及會停「犬山」的班次，再按看板上的乘車位置排隊。', '犬山下車後跟「西口／犬山城」指標走城下町。'],
+    links: [['名鐵名古屋構內圖與月台', 'https://www.meitetsu.co.jp/train/station_info/line12/station/1201.html'], ['犬山站構內圖', 'https://www.meitetsu.co.jp/train/station_info/line12/station/3138.html']]
+  },
+  'inuyama:nagoyac': {
+    summary: '犬山西口 → 名鐵回名古屋 → 東山線轉名城線',
+    steps: ['回「犬山駅 西口」上樓到驗票口，先在發車板找「名鉄名古屋・金山方面」並核對停站。犬山官方列有多個可用月台，照當班番線下到月台。', '名鐵名古屋出閘後，跟黃色「地下鉄 東山線 H08」。下到 B2 1 號月台搭「栄・藤が丘方面」到榮。', '榮站在閘內轉紫色「名城線」4 號「右回り／名古屋城・大曽根方面」。名古屋城站下車走北驗票口、7 號出口。'],
+    links: [['名鐵犬山站', 'https://www.meitetsu.co.jp/train/station_info/line12/station/3138.html'], ['榮站月台', 'https://www.kotsu.city.nagoya.jp/rp/reader/trp0000625.htm'], ['名古屋城站出口圖', 'https://www.kotsu.city.nagoya.jp/rp/reader/trp0001130.htm']]
+  },
+  'nagoyac:sakae': {
+    summary: '名古屋城站 7 號入口 → 名城線 1 號左環',
+    steps: ['從城區走回 7 號入口，經北驗票口下到名城線月台。', '搭 1 號「左回り／栄・金山方面」，到「栄」下車。'],
+    links: [['名古屋城站構內指引', 'https://map.kotsu.city.nagoya.jp/rp/reader/trp0001119.htm']]
+  },
+  'sakae:nagoyah': {
+    summary: '榮站東山線 2 號 → 名古屋站',
+    steps: ['跟黃色「東山線 H10」找到榮站驗票口及 2 號月台。', '搭「名古屋・高畑方面」，在名古屋站下車，往「桜通口／名駅通」回飯店。'],
+    links: [['榮站月台', 'https://www.kotsu.city.nagoya.jp/rp/reader/trp0000625.htm']]
+  },
+  'nagoyah:meitetsu': {
+    summary: '名站通 → 名鐵名古屋 B1 中央驗票口',
+    steps: ['出飯店後往名站通，找「名鉄百貨店／名鉄名古屋駅」。由連接地下街的入口到 B1「中央改札口（入口専用）」。', '搭 μSKY 要有基本車資與 μticket。中央驗票口右側有售票處。'],
+    links: [['名鐵名古屋機場線指引', 'https://www.meitetsu.co.jp/train/centrair/station_1201/']]
+  },
+  'meitetsu:ngo': {
+    summary: '名鐵名古屋：μSKY 走 3 號，一般車走 4 號',
+    steps: ['從 B1 中央驗票口進站。搭 μSKY 時，上正前方樓梯後往右前方，再從左手的 A 樓梯下到 B2 3 號月台。帶大件行李可參考官網「西改札口」電梯路線。', '若改搭一般車，中央口入閘後走右手 B 樓梯下到 B2 4 號月台，核對「中部国際空港行」與看板上的綠色乘車位置。', '到機場出閘後進「アクセスプラザ」，按航空公司航廈走。T1 往 3F 出發大廳，T2 經 Flight of Dreams 往 2F 出發大廳。'],
+    links: [['名鐵官方逐步乘車圖', 'https://www.meitetsu.co.jp/train/centrair/station_1201/'], ['中部機場航廈走法', 'https://www.centrair.jp/flight/flow/move-terminals/index.html']]
+  }
 };
 const LNK={
  'City Plaza Osaka 交通': 'https://cityplaza.or.jp/access/',
@@ -247,6 +402,17 @@ function upcomingLeg(day, minute) {
 function placeCopy(name) {
   return `<button type="button" class="miniBtn copyPlace" data-copy-place="${esc(name)}">複製日文地名</button>`;
 }
+function renderBoardingGuide(from, to) {
+  const guide = BOARDING_GUIDES[from + ":" + to];
+  if (!guide) return "";
+  return `<details class="boardingGuide">
+    <summary><strong>怎麼搭</strong> · ${esc(guide.summary)}</summary>
+    <ol>${guide.steps.map(step => `<li>${esc(step)}</li>`).join("")}</ol>
+    <div class="stopActions">${guide.links.map(([label, url]) =>
+      `<a class="miniBtn" href="${esc(url)}" target="_blank" rel="noopener">${esc(label)} ↗</a>`
+    ).join("")}</div>
+  </details>`;
+}
 function renderTravelCard(now = new Date()) {
   const clock = japanTime(now);
   const today = clock.day === selectedDay;
@@ -275,6 +441,7 @@ function renderTravelCard(now = new Date()) {
     <p><strong class="travelTime">${timeLabel} ${esc(stop.depart || stop.time)}</strong> · ${esc(stop.duration || '短距離移動')}</p>
     <p>${esc(stop.route || from.name + ' → ' + to.name)}</p>
     <p class="placeName" lang="ja">${esc(boarding)}</p>
+    ${renderBoardingGuide(previous.id, stop.id)}
     <p>${stop.timetable ? '班次待核對，請以正式時刻表或車票為準。' : '時間為行程規劃。'}</p>
     <div class="stopActions">
       <a class="miniBtn" href="${gmaps(previous.id, stop.id, stop.mode)}" target="_blank" rel="noopener">開啟導航 ↗</a>
@@ -390,7 +557,7 @@ function loclink(id){let p=spot(id);return `https://www.google.com/maps/search/?
 function refresh(){renderNav();renderDay();renderHotel();renderPrep();renderBudget();paintMap();}
 function renderNav(){ $('dayNav').innerHTML=DATA.days.map((d,i)=>`<button class="dayBtn ${selectedDay===i?'active':''}" data-day="${i}" aria-pressed="${selectedDay===i}"><span class="dayNum">${d.date}</span><span class="dayWeek">${d.weekday} · D${i+1}</span></button>`).join('');$('dayNav').querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>chooseDay(+b.dataset.day)));}
 function renderDay(){renderTravelCard();let d=DATA.days[selectedDay];let html=`<div class="dayHeader"><small>DAY ${selectedDay+1} / 08 · 2027/${d.date}（${d.weekday}）</small><h2>${esc(d.title)}</h2><p>${esc(d.caption)}</p><button type="button" class="focusChip miniBtn" id="dayMapJump">◎ 查看當日地圖</button></div>${d.key==='shirakawa'?renderSnowPlan():''}<div class="timeline">`;
- d.stops.forEach((s,i)=>{let p=spot(s.id);if(i>0){let prev=d.stops[i-1],txt=s.route||`${spot(prev.id).name} → ${p.name}`;html+=`<div class="routeConnector"><span class="icon">${modeIcon(s.mode)}</span><div class="rtext"><strong>${esc(s.duration||'短距離移動')}</strong><br>${esc(txt)}</div><button type="button" class="legOpen" data-leg="${i}">地圖 ↗</button></div>`;}
+ d.stops.forEach((s,i)=>{let p=spot(s.id);if(i>0){let prev=d.stops[i-1],txt=s.route||`${spot(prev.id).name} → ${p.name}`;html+=`<div class="routeConnector"><span class="icon">${modeIcon(s.mode)}</span><div class="rtext"><strong>${esc(s.duration||'短距離移動')}</strong><br>${esc(txt)}</div><button type="button" class="legOpen" data-leg="${i}">地圖 ↗</button></div>${renderBoardingGuide(prev.id,s.id)}`;}
  html+=`<article class="stopCard"><div class="stopTime">${esc(s.time)}</div><div class="stopMain"><h3>${esc(p.name)} ${s.optional?'<span style="font-size:10px;color:#e3ba8c">（選配）</span>':''}</h3><div class="desc">${esc(s.note)} ${s.fee?`<span class="fee"> ${esc(s.fee)}</span>`:''}</div><div class="placeName" lang="ja">${esc(p.ja)}</div><div class="stopActions">${placeCopy(p.ja)}<button class="miniBtn" data-point="${esc(s.id)}">◎ 地圖定位</button><a class="miniBtn" href="${loclink(s.id)}" target="_blank" rel="noopener">Google 地點 ↗</a>${i>0?`<a class="miniBtn" href="${gmaps(d.stops[i-1].id,s.id,s.mode)}" target="_blank" rel="noopener">兩點導航 ↗</a>`:''}</div></div></article>`});
  html+='</div><div class="notice"><strong>⚠ 當日注意事項</strong><br>'+d.tips.map(t=>'• '+esc(t)).join('<br>')+'</div>';
  if(d.key==='takayama'||d.key==='shirakawa')html+=`<div class="card" style="margin-top:12px"><h3>♨ 壱龍已訂兩晚一泊二食</h3><p>你訂的方案含兩頓晚餐與兩頓早餐，晚餐在飯店對面的 168邸。白川鄉那天務必搭能趕上飯店用餐時間的回程車。</p><a class="miniBtn" href="${LNK['高山壱龍旅館官網']}" target="_blank" rel="noopener">旅館官網 ↗</a></div>`;
